@@ -11,14 +11,14 @@ class UtcDateTimeType extends DateTimeType
 {
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
-        if ($value instanceof \DateTimeInterface) {
+        if ($value instanceof \DateTime) {
             $value = $value->setTimezone(TimeZone::utc());
         }
 
         return parent::convertToDatabaseValue($value, $platform);
     }
 
-    public function convertToPHPValue($value, AbstractPlatform $platform): ?\DateTimeInterface
+    public function convertToPHPValue($value, AbstractPlatform $platform): ?\DateTime
     {
         $timeZone = date_default_timezone_get();
 

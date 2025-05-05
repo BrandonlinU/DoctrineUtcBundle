@@ -10,14 +10,14 @@ use Doctrine\ORM\Mapping as ORM;
 class UtcDateTime
 {
     #[ORM\Column(type: Types::UTC_DATETIME)]
-    private ?\DateTimeInterface $value = null;
+    private ?\DateTime $value = null;
 
     #[ORM\Column(length: 180)]
     private ?string $timeZone = null;
 
     private bool $localized = false;
 
-    public function getValue(): ?\DateTimeInterface
+    public function getValue(): ?\DateTime
     {
         if ($this->value && !$this->localized) {
             $this->value = $this->value->setTimezone(TimeZone::get($this->timeZone));
@@ -27,7 +27,7 @@ class UtcDateTime
         return $this->value;
     }
 
-    public function setValue(\DateTimeInterface $value): static
+    public function setValue(\DateTime $value): static
     {
         $this->value = $value;
         $this->timeZone = $value->getTimezone()->getName();
