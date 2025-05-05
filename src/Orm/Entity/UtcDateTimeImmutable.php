@@ -3,23 +3,25 @@
 namespace BrandonlinU\DoctrineUtcBundle\Orm\Entity;
 
 use BrandonlinU\DoctrineUtcBundle\Orm\Types;
+use BrandonlinU\DoctrineUtcBundle\Util\TimeZone;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Embeddable]
 class UtcDateTimeImmutable
 {
     #[ORM\Column(type: Types::UTC_DATETIME_IMMUTABLE)]
-    private \DateTimeImmutable $value;
+    private ?\DateTimeImmutable $value = null;
 
-    #[ORM\Column(type: Types::TIMEZONE)]
-    private \DateTimeZone $timeZone;
+    #[ORM\Column(length: 180)]
+    private ?string $timeZone = null;
 
     private bool $localized = false;
 
-    public function getValue(): \DateTimeImmutable
+    public function getValue(): ?\DateTimeImmutable
     {
-        if (!$this->localized) {
-            $this->value = $this->value->setTimezone($this->timeZone);
+        if ($this->value && !$this->localized) {
+            $this->value = $this->value->setTimezone(TimeZone::get($this->timeZone));
+            $this->localized = true;
         }
 
         return $this->value;
@@ -28,7 +30,7 @@ class UtcDateTimeImmutable
     public function setValue(\DateTimeImmutable $value): static
     {
         $this->value = $value;
-        $this->timeZone = $value->getTimezone();
+        $this->timeZone = $value->getTimezone()->getName();
         $this->localized = true;
 
         return $this;

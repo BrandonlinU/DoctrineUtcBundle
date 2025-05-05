@@ -2,7 +2,6 @@
 
 namespace BrandonlinU\DoctrineUtcBundle\DependencyInjection;
 
-use BrandonlinU\DoctrineUtcBundle\Orm\Type\TimezoneType;
 use BrandonlinU\DoctrineUtcBundle\Orm\Type\UtcDateTimeImmutableType;
 use BrandonlinU\DoctrineUtcBundle\Orm\Type\UtcDateTimeType;
 use BrandonlinU\DoctrineUtcBundle\Orm\Types;
@@ -23,7 +22,6 @@ final class DoctrineUtcExtension extends Extension implements PrependExtensionIn
         $container->prependExtensionConfig('doctrine', [
             'dbal' => [
                 'types' => [
-                    Types::TIMEZONE => TimezoneType::class,
                     Types::UTC_DATETIME => UtcDateTimeType::class,
                     Types::UTC_DATETIME_IMMUTABLE => UtcDateTimeImmutableType::class,
                 ],

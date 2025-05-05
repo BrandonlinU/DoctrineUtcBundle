@@ -18,6 +18,17 @@ class UtcDateTimeImmutableType extends DateTimeImmutableType
         return parent::convertToDatabaseValue($value, $platform);
     }
 
+    public function convertToPHPValue($value, AbstractPlatform $platform): ?\DateTimeImmutable
+    {
+        $timeZone = date_default_timezone_get();
+
+        date_default_timezone_set('UTC');
+        $value = parent::convertToPHPValue($value, $platform);
+        date_default_timezone_set($timeZone);
+
+        return $value;
+    }
+
     public function getName(): string
     {
         return Types::UTC_DATETIME_IMMUTABLE;
