@@ -1,0 +1,60 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: [8.2, 8.3, 8.4]
+        symfony-version: [7.2.*]
+        prefer-lowest: ['']
+        include:
+          - php-version: 8.2
+            symfony-version: 7.0.*
+            prefer-lowest: --prefer-lowest
+          - php-version: 8.1
+            symfony-version: 6.4.*
+            prefer-lowest: --prefer-lowest
+
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@v3
+
+      - name: Setup php env 🏗
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: pdo_sqlite
+
+      - name: Validate composer.json ✔️
+        run: composer validate --strict
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache vendor 📦
+        if: ${{ !env.ACT }}
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ matrix.symfony-version }}-${{ matrix.prefer-lowest }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-${{ matrix.symfony-version }}-${{ matrix.prefer-lowest }}-
+
+      - name: Install dependencies 👨🏻‍💻
+        env:
+          SYMFONY_REQUIRE: ${{ matrix.symfony-version }}
+        run: |
+          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+          composer update -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist ${{ matrix.prefer-lowest }}
+
+      - name: Run unit tests 🧪
+        run: composer run-script test
